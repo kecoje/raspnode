@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "cookie": "^0.4.1",
+    "cookie-parser": "^1.4.5",
+    "express": "^4.17.1",
+    "i2c-bus": "^5.2.1",
+    "limiter": "^1.1.5",
+    "node-rate-limiter": "^1.0.1",
+    "object-hash": "^2.1.1",
+    "oled-display": "^1.0.25",
+    "oled-font-5x7": "^1.0.3",
+    "oled-i2c-bus": "^1.0.12",
+    "onoff": "^6.0.1",
+    "parser": "^0.1.4",
+    "socket.io": "^4.0.0",
+    "sqlite3": "^5.0.2"
+  }
+}

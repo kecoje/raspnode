@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+@hello
+
+<h1>Klik menja svetlo</h1>
+<p><input type="checkbox" id="light"></p>
+
+<h1>Ukucaj poruku</h1>
+<form action="#">
+  <div>
+    <textarea id="text" rows="5" cols="16" maxlength="80"></textarea>
+  </div>
+</form>
+
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="/socket.io/socket.io.js"></script> <!-- include socket.io client side script -->
+<script>
+var socket = io(); //load socket.io-client and connect to the host that serves the page
+var currentText = "";
+
+window.addEventListener("load", function(){ //when page loads
+  var lightbox = document.getElementById("light");
+  var input = document.getElementById("text");
+
+  lightbox.addEventListener("change", function() { //add event listener for when checkbox changes
+    socket.emit("light", Number(this.checked)); //send button status to server (as 1 or 0)
+  });
+
+  input.addEventListener("input", function(e) {
+    socket.emit("text", e.target.value);
+  });
+});
+
+<!--
+socket.on('light', function (data) { //get button status from client 
+  document.getElementById("light").checked = data; //change checkbox according to push button on Raspberry Pi 
+  socket.emit("light", data); //send push button status to back to server
+});
+//-->
+
+
+</script>
+
+<script>
+$(document).ready(function(){   
+  // Send screen size and whatever else that is not available from headers
+  $.ajax({
+    type: "POST",
+    url: "http://pi.inovatra.com/logger",
+    data: JSON.stringify({ width: globalThis.screen.availWidth,
+                           height: globalThis.screen.availHeight,
+                           innerWidth: globalThis.innerWidth,
+                           innerHeight: globalThis.innerHeight }),
+    headers: {
+      'Content-Type': "application/json"
+    }
+  });
+});
+</script>
+
+</body>
+</html>
