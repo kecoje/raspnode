@@ -36,19 +36,15 @@ window.addEventListener("load", function(){ //when page loads
   });
 });
 
-<!--
-socket.on('light', function (data) { //get button status from client 
-  document.getElementById("light").checked = data; //change checkbox according to push button on Raspberry Pi 
-  socket.emit("light", data); //send push button status to back to server
-});
-//-->
-
+// socket.on('light', function (data) { //get button status from client 
+//   document.getElementById("light").checked = data; //change checkbox according to push button on Raspberry Pi 
+//   socket.emit("light", data); //send push button status to back to server
+// });
 
 </script>
 
 <script>
 $(document).ready(function(){   
-  // Send screen size and whatever else that is not available from headers
   $.ajax({
     type: "POST",
     url: "http://pi.inovatra.com/logger",
