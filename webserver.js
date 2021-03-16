@@ -27,10 +27,13 @@ const io = require('socket.io')(http);
 
 app.use(express.static(path.join(__dirname, 'public/style')))
 
+agentRegExp = "/\(([^()]*)\)/gm";
+ipRegExp = "/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm";
+
 app.get('/', function(req, res) {
-  let key = [req.header("User-Agent"), "http://pi.inovatra.com/", req.ip];
-  let search = "SELECT * FROM Users WHERE Agent = ? AND Referer = ? AND IP = ?";
-  //console.log(key);
+  let key = [agentRegExp.exec(req.header("User-Agent"))[1], ipRegExp.exec(req.ip)[1]];
+  console.log(key);
+  let search = "SELECT * FROM Users WHERE Agent = ? AND IP = ?";
   db.get(search, key, (err, row) => {
     if (err) { return console.error(err.message); }
     if (row !== undefined){
@@ -51,16 +54,15 @@ app.get('/', function(req, res) {
       });
     }
   });
-  //res.sendFile(path.join(__dirname + '/public/index.html'));
 });
 
 app.post('/logger', function(req, res) {
   const {width, height, innerWidth, innerHeight} = req.body;
   var user = {
-    agent: req.header('user-agent'), // User Agent we get from headers
+    agent: agentRegExp.exec(req.header('user-agent'))[1], // User Agent we get from headers
     referrer: req.header('referrer'), //  Likewise for referrer
-    ip: req.header('x-forwarded-for') || req.connection.remoteAddress, // Get IP - allow for proxy
-    screen: { // Get screen info that we passed in url post data
+    ip: ipRegExp.exec(req.header('x-forwarded-for'))[1], // Get IP
+    screen: {
       width: width,
       height: height,
       innerWidth: innerWidth,
@@ -69,8 +71,9 @@ app.post('/logger', function(req, res) {
   };
   // Store the user in your database
 
-  let key = [user.agent, user.referrer, user.ip];
-  let search = "SELECT * FROM Users WHERE Agent = ? AND Referer = ? AND IP = ?";
+  let key = [user.agent, user.ip];
+  console.log(key);
+  let search = "SELECT * FROM Users WHERE Agent = ? AND IP = ?";
   db.get(search, key, (err, row) => {
     if (err) {
       return console.error(err.message);
@@ -95,10 +98,10 @@ app.post('/logger', function(req, res) {
   res.end();
 });
 
-io.sockets.on('connection', function (socket) {// WebSocket Connection
-  var lightvalue = 0; //static variable for current status
+io.sockets.on('connection', function (socket) {
+  var lightvalue = 0;
 
-  socket.on('light', function(data) { //get light switch status from client
+  socket.on('light', function(data) {
     lightvalue = data;
     console.log(lightvalue);
     if (lightvalue) {
@@ -127,7 +130,7 @@ setInterval(function() {
 }, 500);
 
 http.listen(80, () => {
-  console.log('App running at http://24.135.59.73:80');
+  console.log('App running!');
   LED.writeSync(1);
   setTimeout(function(){
    LED.writeSync(0);
