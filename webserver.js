@@ -27,11 +27,11 @@ const io = require('socket.io')(http);
 
 app.use(express.static(path.join(__dirname, 'public/style')))
 
-agentRegExp = "/\(([^()]*)\)/gm";
-ipRegExp = "/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/gm";
+var agentRegExp = /\(([^()]*)\)/;
+var ipRegExp = /(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3})/;
 
 app.get('/', function(req, res) {
-  let key = [agentRegExp.exec(req.header("User-Agent"))[1], ipRegExp.exec(req.ip)[1]];
+  let key = [agentRegExp.exec(req.header("user-agent"))[1], ipRegExp.exec(req.ip)[1]];
   console.log(key);
   let search = "SELECT * FROM Users WHERE Agent = ? AND IP = ?";
   db.get(search, key, (err, row) => {
@@ -61,7 +61,7 @@ app.post('/logger', function(req, res) {
   var user = {
     agent: agentRegExp.exec(req.header('user-agent'))[1], // User Agent we get from headers
     referrer: req.header('referrer'), //  Likewise for referrer
-    ip: ipRegExp.exec(req.header('x-forwarded-for'))[1], // Get IP
+    ip: ipRegExp.exec(req.ip)[1], // Get IP
     screen: {
       width: width,
       height: height,
@@ -70,7 +70,6 @@ app.post('/logger', function(req, res) {
     }
   };
   // Store the user in your database
-
   let key = [user.agent, user.ip];
   console.log(key);
   let search = "SELECT * FROM Users WHERE Agent = ? AND IP = ?";
